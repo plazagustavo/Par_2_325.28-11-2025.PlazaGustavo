@@ -1,40 +1,36 @@
- package cine.controlador;
+package cine.controlador;
 
 import cine.modelo.Butaca;
 import cine.modelo.Cine;
 import cine.modelo.Cliente;
 import cine.modelo.Sala;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
-import java.util.ArrayList;  
-import java.util.List;      //
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ViewButacasController {
     @FXML
     private GridPane gridButacas;
-    @FXML
-    private VBox mainVBox;
     
     private Cine cine;
     private Cliente cliente;
     private Sala sala;
-
     private List<Butaca> butacasSeleccionadas = new ArrayList<>(); 
     private Stage stage;
     
-    // Colores para manejo de estilos
-    private static final String COLOR_DISPONIBLE = "-fx-background-color: #51CF66; -fx-text-fill: white; -fx-font-weight: bold;";
-    private static final String COLOR_SELECCIONADO = "-fx-background-color: #0000FF; -fx-text-fill: white; -fx-font-weight: bold;";
-    private static final String COLOR_OCUPADA = "-fx-background-color: #FF2400; -fx-text-fill: white; -fx-font-weight: bold;";
+    // Estilos de los botones
+    private static final String DISPONIBLE = "-fx-background-color: #51CF66; -fx-text-fill: white; -fx-font-weight: bold;";
+    private static final String SELECCIONADO = "-fx-background-color: #0000FF; -fx-text-fill: white; -fx-font-weight: bold;";
+    private static final String OCUPADA = "-fx-background-color: #FF2400; -fx-text-fill: white; -fx-font-weight: bold;";
     
     public void setCine(Cine cine) {
         this.cine = cine;
@@ -62,21 +58,21 @@ public class ViewButacasController {
         for (int i = 0; i < sala.getFilas(); i++) {
             for (int j = 0; j < sala.getColumnas(); j++) {
                 Butaca butaca = butacas[i][j];
-                Button btn = crearBotonButaca(butaca);
+                Button btn = crearBoton(butaca);
                 gridButacas.add(btn, j, i);
             }
         }
     }
     
-    private Button crearBotonButaca(Butaca butaca) {
+    private Button crearBoton(Butaca butaca) {
         Button btn = new Button(butaca.getUbicacion());
         btn.setPrefSize(50, 50);
         
         if (butaca.isOcupada()) {
-            btn.setStyle(COLOR_OCUPADA);
+            btn.setStyle(OCUPADA);
             btn.setDisable(true);
         } else {
-            btn.setStyle(COLOR_DISPONIBLE);
+            btn.setStyle(DISPONIBLE);
             btn.setOnAction(e -> seleccionarButaca(butaca, btn));
         }
         
@@ -85,54 +81,46 @@ public class ViewButacasController {
     
     private void seleccionarButaca(Butaca butaca, Button btn) {
         if (butacasSeleccionadas.contains(butaca)) {
-            // Deseleccionar: Si ya estaba seleccionada, la quitamos
             butacasSeleccionadas.remove(butaca);
-            btn.setStyle(COLOR_DISPONIBLE);
-            mostrarAlerta("Deseleccionado", "Butaca " + butaca.getUbicacion() + " quitada de la selección. Butacas elegidas: " + butacasSeleccionadas.size());
+            btn.setStyle(DISPONIBLE);
         } else {
-            // Seleccionar: Si no estaba seleccionada, la agregamos
             butacasSeleccionadas.add(butaca);
-            btn.setStyle(COLOR_SELECCIONADO);
-            mostrarAlerta("Seleccionado", "Butaca " + butaca.getUbicacion() + " seleccionada. Butacas elegidas: " + butacasSeleccionadas.size());
+            btn.setStyle(SELECCIONADO);
         }
     }
     
     @FXML
     private void btnComprar() {
         if (butacasSeleccionadas.isEmpty()) { 
-            mostrarAlerta("Error", "Debes seleccionar al menos una butaca.");
+            mostrarAlerta("Error", "Selecciona al menos una butaca");
             return;
         }
         
-        try {
-            abrirConfirmacion();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        abrirConfirmacion();
     }
     
-    private void abrirConfirmacion() throws Exception {
-        FXMLLoader loader = new FXMLLoader(
-                getClass().getResource("/cine/vista/ViewConfirmacion.fxml"));
-        Parent root = loader.load();
+    private void abrirConfirmacion() {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/cine/vista/ViewConfirmacion.fxml"));
+            Parent root = loader.load();
 
-        ViewConfirmacionController controller = loader.getController();
-        controller.setCine(cine);
-        controller.setCliente(cliente);
-        controller.setSala(sala);
-        controller.setButacas(butacasSeleccionadas); 
+            ViewConfirmacionController controlador = loader.getController();
+            controlador.setCine(cine);
+            controlador.setCliente(cliente);
+            controlador.setSala(sala);
+            controlador.setButacas(butacasSeleccionadas);
 
-        Stage ventana = new Stage();
-        ventana.setTitle("Confirmar Compra");
-        ventana.setScene(new Scene(root, 500, 400));
+            Stage ventana = new Stage();
+            ventana.setTitle("Confirmar Compra");
+            ventana.setScene(new Scene(root, 500, 400));
+            controlador.setStage(ventana);
+            ventana.show();
 
-        controller.setStage(ventana);
-
-        ventana.show();
-
-
-        if (stage != null) {
             stage.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            mostrarAlerta("Error", "No se pudo abrir la confirmación");
         }
     }
     

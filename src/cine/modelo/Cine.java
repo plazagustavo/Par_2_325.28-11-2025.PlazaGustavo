@@ -30,30 +30,6 @@ public class Cine implements Serializable {
         entradas.add(entrada);
     }
     
-    public void registrarCliente(Cliente cliente) {
-        if (!existeCliente(cliente.getEmail())) {
-            clientes.add(cliente);
-        }
-    }
-    
-    public boolean existeCliente(String email) {
-        for (Cliente cliente : clientes) {
-            if (cliente.getEmail().equals(email)) {
-                return true;
-            }
-        }
-        return false;
-    }
-    
-    public Cliente validarLogin(String email, String contraseña) {
-        for (Cliente cliente : clientes) {
-            if (cliente.getEmail().equals(email) && cliente.getContraseña().equals(contraseña)) {
-                return cliente;
-            }
-        }
-        return null;
-    }
-    
     public Cliente obtenerCliente(String email) {
         for (Cliente cliente : clientes) {
             if (cliente.getEmail().equals(email)) {
@@ -61,6 +37,24 @@ public class Cine implements Serializable {
             }
         }
         return null;
+    }
+    
+    public boolean existeCliente(String email) {
+        return obtenerCliente(email) != null;
+    }
+    
+    public Cliente validarLogin(String email, String contraseña) {
+        Cliente cliente = obtenerCliente(email);
+        if (cliente != null && cliente.getContraseña().equals(contraseña)) {
+            return cliente;
+        }
+        return null;
+    }
+    
+    public void registrarCliente(Cliente cliente) {
+        if (!existeCliente(cliente.getEmail())) {
+            clientes.add(cliente);
+        }
     }
     
     public List<Sala> getSalas() {

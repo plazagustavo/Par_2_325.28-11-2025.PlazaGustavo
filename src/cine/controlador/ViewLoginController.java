@@ -34,7 +34,7 @@ public class ViewLoginController {
         String contraseña = contraseñaField.getText();
         
         if (email.isEmpty() || contraseña.isEmpty()) {
-            mostrarAlerta("Error", "Por favor completa todos los campos");
+            mostrarAlerta("Error", "Completa todos los campos");
             return;
         }
         
@@ -53,7 +53,7 @@ public class ViewLoginController {
         String contraseña = contraseñaField.getText();
         
         if (email.isEmpty() || contraseña.isEmpty()) {
-            mostrarAlerta("Error", "Por favor completa todos los campos");
+            mostrarAlerta("Error", "Completa todos los campos");
             return;
         }
         
@@ -64,22 +64,22 @@ public class ViewLoginController {
         
         Cliente nuevoCliente = new Cliente("Cliente", email, contraseña);
         cine.registrarCliente(nuevoCliente);
-        mostrarAlerta("Éxito", "Cliente registrado correctamente");
+        mostrarAlerta("Éxito", "Registrado correctamente");
         emailField.clear();
         contraseñaField.clear();
     }
     
     private void abrirPrincipal(Cliente cliente) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/cine/vista/ViewPrincipal.fxml"));
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/cine/vista/ViewPrincipal.fxml"));
             Parent root = loader.load();
-
-            ViewPrincipalController controller = loader.getController();
-            controller.setCine(cine);
-            controller.setCliente(cliente);
-
-            controller.setStage(stage); 
-
+            ViewPrincipalController controlador = loader.getController();
+            
+            controlador.setCine(cine);
+            controlador.setCliente(cliente);
+            controlador.setStage(stage);
+            
             Scene scene = new Scene(root);
             stage.setScene(scene);
             stage.show();

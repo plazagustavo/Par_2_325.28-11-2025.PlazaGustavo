@@ -13,7 +13,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ListCell;
 import javafx.stage.Stage;
-import java.io.IOException;
 
 public class ViewPrincipalController {
     @FXML
@@ -65,40 +64,34 @@ public class ViewPrincipalController {
         abrirSeleccionButacas(salaSeleccionada);
     }
 
-    
     @FXML
     private void btnSalir() {
-        try {
-            PersistenciaDatos.guardarCine(cine);
-            System.out.println("Datos del cine guardados.");
-        } catch (Exception e) {
-            System.err.println("Error al guardar los datos: " + e.getMessage());
-        } finally {
-            if (stage != null) {
-                stage.close();
-            }
+        PersistenciaDatos.guardarCine(cine);
+        if (stage != null) {
+            stage.close();
         }
     }
     
     private void abrirSeleccionButacas(Sala sala) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/cine/vista/ViewButacas.fxml"));
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/cine/vista/ViewButacas.fxml"));
             Parent root = loader.load();
-            ViewButacasController controller = loader.getController();
+            ViewButacasController controlador = loader.getController();
             
-            controller.setCine(cine);
-            controller.setCliente(cliente);
+            controlador.setCine(cine);
+            controlador.setCliente(cliente);
             
             Stage ventana = new Stage();
-            controller.setStage(ventana);
-            controller.setSala(sala); 
-            
             ventana.setTitle("Seleccionar Butacas - " + sala.getPelicula());
             ventana.setScene(new Scene(root, 800, 600));
+            
+            controlador.setStage(ventana);
+            controlador.setSala(sala);
             ventana.show();
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
-            mostrarAlerta("Error de Carga", "No se pudo abrir la ventana de butacas.");
+            mostrarAlerta("Error", "No se pudo abrir la ventana de butacas");
         }
     }
     

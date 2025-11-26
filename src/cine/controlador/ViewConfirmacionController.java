@@ -12,7 +12,6 @@ import javafx.scene.control.Label;
 import javafx.stage.Stage;
 
 import java.util.List;
-import java.util.stream.Collectors; 
 
 public class ViewConfirmacionController {
     
@@ -30,11 +29,8 @@ public class ViewConfirmacionController {
     private Cine cine;
     private Cliente cliente;
     private Sala sala;
-
     private List<Butaca> butacasSeleccionadas;
     private Stage stage;
-    private double precioTotal;
-    
     
     public void setCine(Cine cine) {
         this.cine = cine;
@@ -50,76 +46,60 @@ public class ViewConfirmacionController {
     
     public void setButacas(List<Butaca> butacas) {
         this.butacasSeleccionadas = butacas;
-        cargarDatosConfirmacion();
+        mostrarDatos();
     }
-
 
     public void setStage(Stage stage) {
         this.stage = stage;
     }
     
-    
-    private void cargarDatosConfirmacion() {
-
-        if (lblPelicula != null && sala != null && butacasSeleccionadas != null && !butacasSeleccionadas.isEmpty()) {
-            
-
-            this.precioTotal = butacasSeleccionadas.size() * PRECIO_BUTACA_UNITARIO;
-            
-
-            String ubicaciones = butacasSeleccionadas.stream()
-                                                    .map(Butaca::getUbicacion)
-                                                    .collect(Collectors.joining(", "));
-            
-            lblPelicula.setText(sala.getPelicula());
-            lblSala.setText(String.valueOf(sala.getNumero()));
-            lblButaca.setText(ubicaciones); 
-            lblPrecio.setText(String.format("$%.2f", precioTotal)); 
+    private void mostrarDatos() {
+        // Calcular ubicaciones directamente sin streams
+        String ubicaciones = "";
+        for (Butaca butaca : butacasSeleccionadas) {
+            ubicaciones += butaca.getUbicacion() + ", ";
         }
+        // Eliminar la última coma
+        if (ubicaciones.length() > 0) {
+            ubicaciones = ubicaciones.substring(0, ubicaciones.length() - 2);
+        }
+        
+        double precioTotal = butacasSeleccionadas.size() * PRECIO_BUTACA_UNITARIO;
+        
+        lblPelicula.setText(sala.getPelicula());
+        lblSala.setText(String.valueOf(sala.getNumero()));
+        lblButaca.setText(ubicaciones); 
+        lblPrecio.setText("$" + String.format("%.2f", precioTotal)); 
     }
 
     @FXML
     private void btnConfirmar() {
-        if (butacasSeleccionadas == null || butacasSeleccionadas.isEmpty()) {
-            mostrarAlerta("Error", "No se pudo completar la compra. No hay butacas seleccionadas.", AlertType.ERROR);
-            return;
-        }
-
-
+        // Crear una entrada para cada butaca comprada
         for (Butaca butaca : butacasSeleccionadas) {
-            // Marcar la butaca como ocupada
             butaca.setOcupada(true);
-
-            // Crear una Entrada para cada butaca
-            Entrada nuevaEntrada = new Entrada(cliente, sala, butaca, PRECIO_BUTACA_UNITARIO); // Usamos el precio unitario
-
-            // Añadir la entrada al modelo Cine
-            cine.agregarEntrada(nuevaEntrada); 
+            Entrada entrada = new Entrada(cliente, sala, butaca, PRECIO_BUTACA_UNITARIO);
+            cine.agregarEntrada(entrada);
         }
         
-
-        mostrarAlerta("Éxito", 
-                      "¡Compra de " + butacasSeleccionadas.size() + 
-                      " butaca(s) realizada con éxito!\nTotal Pagado: " + 
-                      String.format("$%.2f", precioTotal), 
-                      AlertType.INFORMATION);
-
-
-        if (stage != null) {
-            stage.close(); 
-        }
-    }
-    
-    @FXML
-    private void btnCancelar() {
-        // Cierra la ventana de confirmación
+        double precioTotal = butacasSeleccionadas.size() * PRECIO_BUTACA_UNITARIO;
+        String mensaje = "¡Compra exitosa de " + butacasSeleccionadas.size() 
+                       + " butaca(s)!\nTotal: $" + String.format("%.2f", precioTotal);
+        mostrarAlerta("Éxito", mensaje, AlertType.INFORMATION);
+        
         if (stage != null) {
             stage.close();
         }
     }
     
-    private void mostrarAlerta(String titulo, String mensaje, AlertType type) {
-        Alert alert = new Alert(type);
+    @FXML
+    private void btnCancelar() {
+        if (stage != null) {
+            stage.close();
+        }
+    }
+    
+    private void mostrarAlerta(String titulo, String mensaje, AlertType tipo) {
+        Alert alert = new Alert(tipo);
         alert.setTitle(titulo);
         alert.setHeaderText(null);
         alert.setContentText(mensaje);
