@@ -12,6 +12,7 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
 public class ViewLoginController {
+    
     @FXML
     private TextField emailField;
     @FXML
@@ -33,12 +34,15 @@ public class ViewLoginController {
         String email = emailField.getText().trim();
         String contraseña = contraseñaField.getText();
         
+        // Validar que los campos no estén vacíos
         if (email.isEmpty() || contraseña.isEmpty()) {
             mostrarAlerta("Error", "Completa todos los campos");
             return;
         }
         
+        // Validar login
         Cliente cliente = cine.validarLogin(email, contraseña);
+        
         if (cliente != null) {
             abrirPrincipal(cliente);
         } else {
@@ -52,19 +56,25 @@ public class ViewLoginController {
         String email = emailField.getText().trim();
         String contraseña = contraseñaField.getText();
         
+        // Validar que los campos no estén vacíos
         if (email.isEmpty() || contraseña.isEmpty()) {
             mostrarAlerta("Error", "Completa todos los campos");
             return;
         }
         
+        // Verificar si el cliente ya existe
         if (cine.existeCliente(email)) {
             mostrarAlerta("Error", "El email ya está registrado");
             return;
         }
         
+        // Crear y registrar nuevo cliente
         Cliente nuevoCliente = new Cliente("Cliente", email, contraseña);
         cine.registrarCliente(nuevoCliente);
+        
         mostrarAlerta("Éxito", "Registrado correctamente");
+        
+        // Limpiar los campos
         emailField.clear();
         contraseñaField.clear();
     }
@@ -74,6 +84,7 @@ public class ViewLoginController {
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource("/cine/vista/ViewPrincipal.fxml"));
             Parent root = loader.load();
+            
             ViewPrincipalController controlador = loader.getController();
             
             controlador.setCine(cine);
@@ -83,6 +94,7 @@ public class ViewLoginController {
             Scene scene = new Scene(root);
             stage.setScene(scene);
             stage.show();
+            
         } catch (Exception e) {
             e.printStackTrace();
         }

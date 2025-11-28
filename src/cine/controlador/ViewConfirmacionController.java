@@ -10,13 +10,12 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Label;
 import javafx.stage.Stage;
-
 import java.util.List;
 
 public class ViewConfirmacionController {
     
     private static final double PRECIO_BUTACA_UNITARIO = 1000.00; 
-
+    
     @FXML
     private Label lblPelicula;
     @FXML
@@ -25,7 +24,7 @@ public class ViewConfirmacionController {
     private Label lblButaca; 
     @FXML
     private Label lblPrecio; 
-
+    
     private Cine cine;
     private Cliente cliente;
     private Sala sala;
@@ -35,7 +34,7 @@ public class ViewConfirmacionController {
     public void setCine(Cine cine) {
         this.cine = cine;
     }
-
+    
     public void setCliente(Cliente cliente) {
         this.cliente = cliente;
     }
@@ -48,44 +47,57 @@ public class ViewConfirmacionController {
         this.butacasSeleccionadas = butacas;
         mostrarDatos();
     }
-
+    
     public void setStage(Stage stage) {
         this.stage = stage;
     }
     
     private void mostrarDatos() {
-        // Calcular ubicaciones directamente sin streams
         String ubicaciones = "";
-        for (Butaca butaca : butacasSeleccionadas) {
-            ubicaciones += butaca.getUbicacion() + ", ";
-        }
-        // Eliminar la última coma
-        if (ubicaciones.length() > 0) {
-            ubicaciones = ubicaciones.substring(0, ubicaciones.length() - 2);
+        
+        // Recorrer las butacas seleccionadas para armar el texto
+        for (int i = 0; i < butacasSeleccionadas.size(); i++) {
+            Butaca butaca = butacasSeleccionadas.get(i);
+            ubicaciones = ubicaciones + butaca.getUbicacion();
+            
+            // Agregar coma si no es la última butaca
+            if (i < butacasSeleccionadas.size() - 1) {
+                ubicaciones = ubicaciones + ", ";
+            }
         }
         
-        double precioTotal = butacasSeleccionadas.size() * PRECIO_BUTACA_UNITARIO;
+        // Calcular el precio total
+        int cantidadButacas = butacasSeleccionadas.size();
+        double precioTotal = cantidadButacas * PRECIO_BUTACA_UNITARIO;
         
+        // Mostrar los datos en las etiquetas
         lblPelicula.setText(sala.getPelicula());
         lblSala.setText(String.valueOf(sala.getNumero()));
         lblButaca.setText(ubicaciones); 
         lblPrecio.setText("$" + String.format("%.2f", precioTotal)); 
     }
-
+    
     @FXML
     private void btnConfirmar() {
         // Crear una entrada para cada butaca comprada
-        for (Butaca butaca : butacasSeleccionadas) {
+        for (int i = 0; i < butacasSeleccionadas.size(); i++) {
+            Butaca butaca = butacasSeleccionadas.get(i);
             butaca.setOcupada(true);
+            
             Entrada entrada = new Entrada(cliente, sala, butaca, PRECIO_BUTACA_UNITARIO);
             cine.agregarEntrada(entrada);
         }
         
-        double precioTotal = butacasSeleccionadas.size() * PRECIO_BUTACA_UNITARIO;
-        String mensaje = "¡Compra exitosa de " + butacasSeleccionadas.size() 
+        // Calcular precio total y mostrar mensaje
+        int cantidadButacas = butacasSeleccionadas.size();
+        double precioTotal = cantidadButacas * PRECIO_BUTACA_UNITARIO;
+        
+        String mensaje = "¡Compra exitosa de " + cantidadButacas 
                        + " butaca(s)!\nTotal: $" + String.format("%.2f", precioTotal);
+        
         mostrarAlerta("Éxito", mensaje, AlertType.INFORMATION);
         
+        // Cerrar la ventana
         if (stage != null) {
             stage.close();
         }

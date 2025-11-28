@@ -15,6 +15,7 @@ import javafx.scene.control.ListCell;
 import javafx.stage.Stage;
 
 public class ViewPrincipalController {
+    
     @FXML
     private Label clienteLabel;
     @FXML
@@ -39,23 +40,18 @@ public class ViewPrincipalController {
     }
     
     private void cargarSalas() {
-        salasListView.getItems().addAll(cine.getSalas());
-        salasListView.setCellFactory(param -> new ListCell<Sala>() {
-            @Override
-            protected void updateItem(Sala sala, boolean empty) {
-                super.updateItem(sala, empty);
-                if (empty || sala == null) {
-                    setText(null);
-                } else {
-                    setText(sala.toString());
-                }
-            }
-        });
+        // Agregar todas las salas a la lista
+        for (int i = 0; i < cine.getSalas().size(); i++) {
+            Sala sala = cine.getSalas().get(i);
+            salasListView.getItems().add(sala);
+        }
     }
     
     @FXML
     private void btnComprar() {
         Sala salaSeleccionada = salasListView.getSelectionModel().getSelectedItem();
+        
+        // Validar que se haya seleccionado una sala
         if (salaSeleccionada == null) {
             mostrarAlerta("Error", "Selecciona una sala primero");
             return;
@@ -63,10 +59,12 @@ public class ViewPrincipalController {
         
         abrirSeleccionButacas(salaSeleccionada);
     }
-
+    
     @FXML
     private void btnSalir() {
+        // Guardar los datos antes de salir
         PersistenciaDatos.guardarCine(cine);
+        
         if (stage != null) {
             stage.close();
         }
@@ -77,6 +75,7 @@ public class ViewPrincipalController {
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource("/cine/vista/ViewButacas.fxml"));
             Parent root = loader.load();
+            
             ViewButacasController controlador = loader.getController();
             
             controlador.setCine(cine);
@@ -88,7 +87,9 @@ public class ViewPrincipalController {
             
             controlador.setStage(ventana);
             controlador.setSala(sala);
+            
             ventana.show();
+            
         } catch (Exception e) {
             e.printStackTrace();
             mostrarAlerta("Error", "No se pudo abrir la ventana de butacas");
